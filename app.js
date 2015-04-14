@@ -6,6 +6,15 @@ $(document).ready( function() {
 		var tags = $(this).find("input[name='tags']").val();
 		getUnanswered(tags);
 	});
+
+	//* get the value of the top answers submit button *//
+
+	$('.inspiration-getter').submit( function(event){
+		$('.results').html('');	
+		var answerers = $(this).find("input[name='answerers']").val();
+		getAnswerers(answerers);
+		console.log(getAnswerers);
+	});
 });
 
 // this function takes the question object returned by StackOverflow 
@@ -86,6 +95,24 @@ var getUnanswered = function(tags) {
 		var errorElem = showError(error);
 		$('.search-results').append(errorElem);
 	});
+};
+
+var getAnswerers = function(answerers) {
+
+	var request = {tagged: answerers,
+		site: 'stackoverflow',
+		order: 'desc',
+		sort: 'creation'};
+	
+	var result = $.ajax({
+		url: "http://api.stackexchange.com/2.2top-answerers/"
+		data: request,
+		dataType: "jsonp",
+		type: "GET",
+	})
+
+
+
 };
 
 
