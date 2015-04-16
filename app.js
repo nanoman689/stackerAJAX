@@ -105,13 +105,23 @@ var getAnswerers = function(answerers) {
 		sort: 'creation'};
 	
 	var result = $.ajax({
-		url: "http://api.stackexchange.com/2.2top-answerers/"
+		url: "http://api.stackexchange.com/2.2/tags/top-answerers/",
 		data: request,
 		dataType: "jsonp",
 		type: "GET",
 	})
 
+	.done(function(result){
+		var searchResults = showSearchResults(request.tagged, result.items.length);
 
+		$('.search-results').html(searchResults);
+
+		$.each(result.items, function(i, item) {
+			var answerers = showAnswerers(item);
+			$('.results').append(answerers);
+		});
+
+	})
 
 };
 
