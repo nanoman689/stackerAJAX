@@ -87,6 +87,3 @@ var getUnanswered = function(tags) {
 		$('.search-results').append(errorElem);
 	});
 };
-
-
-
