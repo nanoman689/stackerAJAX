@@ -6,15 +6,24 @@ $(document).ready( function() {
 		var tags = $(this).find("input[name='tags']").val();
 		getUnanswered(tags);
 	});
+
+	//* get the value of the top answers submit button *//
+
+	$('.inspiration-getter').submit( function(event){
+		$('.results').html('');
+		var answerers = $(this).find("input[name='answerers']").val();
+		getAnswerers(answerers);
+		console.log(getAnswerers);
+	});
 });
 
-// this function takes the question object returned by StackOverflow 
+// this function takes the question object returned by StackOverflow
 // and creates new result to be appended to DOM
 var showQuestion = function(question) {
-	
+
 	// clone our result template code
 	var result = $('.templates .question').clone();
-	
+
 	// Set the question properties in result
 	var questionElem = result.find('.question-text a');
 	questionElem.attr('href', question.link);
@@ -42,6 +51,26 @@ var showQuestion = function(question) {
 };
 
 
+/* Show Answers */
+
+var showAnswers = function(question) {
+
+	var result = $('.templates .question').clone();
+
+	var questionElem = result.find('.question-text a');
+	questionElem.attr('href', question.link);
+	questionElem.text(question.title);
+
+	var asked = result.find('.asked-date');
+	var date = new Date(1000*question.creation_date);
+	asked.text(date.toString());
+
+	var viewed = result.find('.viewed');
+	viewed.text(question.view_count);
+
+	return result;
+};
+
 // this function takes the results object from StackOverflow
 // and creates info about search results to be appended to DOM
 var showSearchResults = function(query, resultNum) {
@@ -59,13 +88,13 @@ var showError = function(error){
 // takes a string of semi-colon separated tags to be searched
 // for on StackOverflow
 var getUnanswered = function(tags) {
-	
+
 	// the parameters we need to pass in our request to StackOverflow's API
 	var request = {tagged: tags,
 								site: 'stackoverflow',
 								order: 'desc',
 								sort: 'creation'};
-	
+
 	var result = $.ajax({
 		url: "http://api.stackexchange.com/2.2/questions/unanswered",
 		data: request,
@@ -86,4 +115,39 @@ var getUnanswered = function(tags) {
 		var errorElem = showError(error);
 		$('.search-results').append(errorElem);
 	});
+};
+
+/* Searches the requested Top Answers Tag */
+
+var getAnswerers = function(answerers) {
+
+	var request = {tagged: answerers,
+		site: 'stackoverflow',
+		order: 'desc',
+		sort: 'activity'};
+
+	var result = $.ajax({
+		url: "http://api.stackexchange.com/2.2/tags",
+		data: request,
+		dataType: "jsonp",
+		type: "GET",
+	})
+
+	.done(function(result){
+		var searchResults;
+		if (result != null){
+			if (result.items != null){
+			searchResults = showSearchResults(request.tagged, result.items.length);
+			}
+		}
+
+		$('.search-results').html(searchResults);
+
+		$.each(result.items, function(i, item) {
+			var answerers = showAnswers(item);
+			$('.results').append(answerers);
+		});
+
+	})
+
 };
